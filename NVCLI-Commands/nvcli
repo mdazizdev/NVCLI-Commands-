@@ -1,0 +1,135 @@
+
+#!/usr/bin/env bash
+
+# ==========================================
+# NVCLI COMMANDS
+# NexVerix Command Line Interface
+# Version: 0.2.0
+# Platforms: Termux + Linux
+# ==========================================
+
+set -o pipefail
+
+# ------------------------------------------
+# Core configuration
+# ------------------------------------------
+
+NVCLI_VERSION="0.2.0"
+
+NVCLI_DIR="$(
+    cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &&
+    pwd
+)"
+
+# ------------------------------------------
+# Load core modules
+# ------------------------------------------
+
+source "$NVCLI_DIR/core/detect.sh"
+source "$NVCLI_DIR/core/utils.sh"
+
+# ------------------------------------------
+# Detect platform
+# ------------------------------------------
+
+detect_platform
+detect_package_manager
+
+# ------------------------------------------
+# Load appearance modules
+# ------------------------------------------
+
+source "$NVCLI_DIR/interface/colors.sh"
+source "$NVCLI_DIR/interface/banner.sh"
+source "$NVCLI_DIR/interface/prompt.sh"
+
+# ------------------------------------------
+# Load command modules
+# ------------------------------------------
+
+source "$NVCLI_DIR/commands/help.sh"
+source "$NVCLI_DIR/commands/system.sh"
+source "$NVCLI_DIR/commands/network.sh"
+source "$NVCLI_DIR/commands/packages.sh"
+
+# ------------------------------------------
+# Load interactive terminal
+# ------------------------------------------
+
+source "$NVCLI_DIR/core/terminal.sh"
+
+# ------------------------------------------
+# Command dispatcher
+# ------------------------------------------
+
+case "${1:-}" in
+
+    # Interactive terminal
+    "")
+        start_terminal
+        ;;
+
+    # General
+    help|-h|--help)
+        cmd_help
+        ;;
+
+    version|-v|--version)
+        echo "NVCLI Commands v$NVCLI_VERSION"
+        ;;
+
+    # System
+    info|sysinfo)
+        cmd_info
+        ;;
+
+    uptime)
+        cmd_uptime
+        ;;
+
+    disk)
+        cmd_disk
+        ;;
+
+    memory|ram)
+        cmd_memory
+        ;;
+
+    doctor)
+        cmd_doctor
+        ;;
+
+    # Network
+    ip)
+        cmd_ip
+        ;;
+
+    ping)
+        shift
+        cmd_ping "$@"
+        ;;
+
+    # Packages
+    update)
+        cmd_update
+        ;;
+
+    # Terminal controls
+    clear|cls)
+        clear
+        ;;
+
+    exit|quit)
+        echo "NVCLI terminal requires interactive mode."
+        echo "Run 'nvcli' to enter the terminal."
+        ;;
+
+    # Unknown command
+    *)
+        error "Unknown command: $1"
+        echo "Run 'nvcli help' for available commands."
+        exit 1
+        ;;
+
+esac
+
